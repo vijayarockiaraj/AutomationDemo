@@ -118,13 +118,12 @@ namespace MortgageAutomation.Pages
         // ---------------- Capture screenshot ----------------
         public void CaptureScreenshot(string fileName)
 	{
-	    var screenshot = ((ITakesScreenshot)_driver).GetScreenshot();
-	    var screenshotsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Reports", "Screenshots");
-	    Directory.CreateDirectory(screenshotsFolder);
-	    var filePath = Path.Combine(screenshotsFolder, fileName);
-
-	    // Save screenshot using byte array
-	    File.WriteAllBytes(filePath, screenshot.AsByteArray);
+    		var screenshot = ((ITakesScreenshot)_driver).GetScreenshot();
+	    	// Ensure folder is inside repository so GitHub Actions can find it
+    		var screenshotsFolder = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "Reports", "Screenshots");
+    		Directory.CreateDirectory(screenshotsFolder);
+		var filePath = Path.Combine(screenshotsFolder, fileName);
+		 File.WriteAllBytes(filePath, screenshot.AsByteArray);
 	}
 
     }
