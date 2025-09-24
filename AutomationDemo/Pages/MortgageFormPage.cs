@@ -2,6 +2,7 @@
 using OpenQA.Selenium.Support.UI;
 using SeleniumExtras.WaitHelpers;
 using System;
+using System.IO;
 using System.Threading;
 
 namespace MortgageAutomation.Pages
@@ -17,19 +18,22 @@ namespace MortgageAutomation.Pages
             _wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
         }
 
+        // Navigate to form
         public void GoToForm()
         {
             _driver.Navigate().GoToUrl("https://vijayarockiaraj.github.io/mortgage-application-form/");
             _wait.Until(d => d.FindElement(By.Id("stepLabel")));
         }
 
+        // Click button using JS (Next/Back)
         private void ClickButtonById(string id)
         {
             var button = _driver.FindElement(By.Id(id));
             ((IJavaScriptExecutor)_driver).ExecuteScript("arguments[0].click();", button);
-            Thread.Sleep(500); // Wait for step content to update
+            Thread.Sleep(500);
         }
 
+        // Check current step
         public bool IsOnStep(int stepNumber)
         {
             try
@@ -54,7 +58,6 @@ namespace MortgageAutomation.Pages
             _driver.FindElement(By.Id("lastName")).SendKeys(lastName);
             _driver.FindElement(By.Id("email")).SendKeys(email);
             _driver.FindElement(By.Id("phone")).SendKeys(phone);
-
             ClickButtonById("nextBtn");
         }
 
@@ -62,12 +65,10 @@ namespace MortgageAutomation.Pages
         {
             _wait.Until(d => d.FindElement(By.Id("address"))).SendKeys(address);
 
-            // Select property type by value (match HTML value attribute)
             var select = new SelectElement(_driver.FindElement(By.Id("propertyType")));
             select.SelectByValue(propertyType.ToLower().Replace(" ", "-"));
 
             _driver.FindElement(By.Id("value")).SendKeys(propertyValue);
-
             ClickButtonById("nextBtn");
         }
 
@@ -75,7 +76,6 @@ namespace MortgageAutomation.Pages
         {
             _wait.Until(d => d.FindElement(By.Id("amount"))).SendKeys(loanAmount);
             _driver.FindElement(By.Id("term")).SendKeys(termYears);
-
             ClickButtonById("nextBtn");
         }
 
@@ -96,8 +96,8 @@ namespace MortgageAutomation.Pages
 
         public void SubmitForm()
         {
-            ClickButtonById("nextBtn"); // Final step’s Next is Submit
-            Thread.Sleep(1000); // Wait for submission alert
+            ClickButtonById("nextBtn");
+            Thread.Sleep(1000);
         }
 
         public string GetSuccessMessage()
@@ -105,7 +105,7 @@ namespace MortgageAutomation.Pages
             try
             {
                 IAlert alert = _wait.Until(ExpectedConditions.AlertIsPresent());
-                string message = alert.Text;
+                string message = alert.Text!;
                 alert.Accept();
                 return message;
             }
@@ -114,5 +114,18 @@ namespace MortgageAutomation.Pages
                 return "No success alert found";
             }
         }
+
+        // ---------------- Capture screenshot ----------------
+        public void CaptureScreenshot(string fileName)
+	{
+	    var screenshot = ((ITakesScreenshot)_driver).GetScreenshot();
+	    var screenshotsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Reports", "Screenshots");
+	    Directory.CreateDirectory(screenshotsFolder);
+	    var filePath = Path.Combine(screenshotsFolder, fileName);
+
+	    // Save screenshot using byte array
+	    File.WriteAllBytes(filePath, screenshot.AsByteArray);
+	}
+
     }
 }

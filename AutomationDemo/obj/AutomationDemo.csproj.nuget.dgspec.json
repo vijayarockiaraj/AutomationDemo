@@ -54,6 +54,10 @@
               "target": "Package",
               "version": "[3.11.0, )"
             },
+            "EPPlus": {
+              "target": "Package",
+              "version": "[6.3.1, )"
+            },
             "Microsoft.NET.Test.Sdk": {
               "target": "Package",
               "version": "[17.8.0, )"
