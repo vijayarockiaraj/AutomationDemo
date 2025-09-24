@@ -22,5 +22,25 @@ jobs:
       - name: Build
         run: dotnet build ./AutomationDemo.sln --configuration Release --no-restore
 
-      - name: Run automation
-        run: dotnet test ./AutomationDemo.sln --no-build --verbosity normal
+      - name: Run tests and save results
+        run: dotnet test ./AutomationDemo.sln --no-build --logger "trx;LogFileName=test_results.trx"
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: TestResults
+          path: '**/TestResults/*.trx'
+
+      - name: Upload screenshots (if any)
+        uses: actions/upload-artifact@v4
+        with:
+          name: Screenshots
+          path: '**/*.png'
+        if: always()   # ensure screenshots upload even if tests fail
+
+      - name: Upload logs (if any)
+        uses: actions/upload-artifact@v4
+        with:
+          name: Logs
+          path: '**/*.log'
+        if: always()
